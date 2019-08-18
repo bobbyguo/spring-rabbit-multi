@@ -39,13 +39,13 @@ spring:
     rabbitmq:
         host: localhost
         port: 5672
-    multi:
-        rabbit1:
-            host: 172.16.2.122
-            port: 5672
-        rabbit2:
-            host: 172.16.2.150
-            port: 5672
+        multi:
+            rabbit1:
+                host: 172.16.2.122
+                port: 5672
+            rabbit2:
+                host: 172.16.2.150
+                port: 5672
 ```
 
 ##### 4.1. Change context when using RabbitTemplate
