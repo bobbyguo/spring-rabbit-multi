@@ -23,6 +23,7 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
+import org.springframework.amqp.rabbit.connection.PublisherCallbackChannelConnectionFactory;
 
 /**
  * 
@@ -50,7 +51,7 @@ public class RabbitMultiConfig {
         }
 
         // init routing factory
-        SimpleRoutingConnectionFactory routingFactory = new SimpleRoutingConnectionFactory();
+        SimpleRoutingConnectionFactory routingFactory = new CustomSimpleRoutingConnectionFactory();
         ConnectionFactory defaultTargetConnectionFactory = rabbitConnectionFactory(config);
         routingFactory.setDefaultTargetConnectionFactory(defaultTargetConnectionFactory);
         Map<Object, ConnectionFactory> targetFactories = build(config, multiConfig);
@@ -155,4 +156,30 @@ public class RabbitMultiConfig {
             throw new RuntimeException(e);
         }
     }
+}
+/**
+ * 
+ * let the SimpleRoutingConnectionFactory to support publisher confirm/return  
+ *
+ */
+class CustomSimpleRoutingConnectionFactory extends SimpleRoutingConnectionFactory implements PublisherCallbackChannelConnectionFactory {
+
+    @Override
+    public boolean isPublisherConfirms() {
+        ConnectionFactory connectionFactory = determineTargetConnectionFactory();
+        if (connectionFactory instanceof PublisherCallbackChannelConnectionFactory) {
+            return ((PublisherCallbackChannelConnectionFactory) connectionFactory).isPublisherConfirms();
+        }
+        return false;
+    }
+
+    @Override
+    public boolean isPublisherReturns() {
+        ConnectionFactory connectionFactory = determineTargetConnectionFactory();
+        if (connectionFactory instanceof PublisherCallbackChannelConnectionFactory) {
+            return ((PublisherCallbackChannelConnectionFactory) connectionFactory).isPublisherReturns();
+        }
+        return false;
+    }
+    
 }
